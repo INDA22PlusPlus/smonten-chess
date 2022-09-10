@@ -1,10 +1,9 @@
 fn main() {
     println!("Hello, world!");
-    let p0 = Piece {
-        kind: PieceKind::Pawn,
-        color: Color::White,
-    };
-    dbg!(p0);
+    let p0 = Piece::Pawn(Color::White);
+    for m in moves(p0) {
+        println!("{}", m);
+    }
 }
 
 /*
@@ -37,17 +36,19 @@ enum Color {
     White,
 }
 #[derive(Debug)]
-enum PieceKind {
-    Pawn,
-    Bishop,
-    Knight,
-    Rook,
-    Queen,
-    King,
+enum Piece {
+    Pawn(Color),
+    Bishop(Color),
+    // Knight(Color),
+    // Rook(Color),
+    // Queen(Color),
+    // King(Color),
 }
 
-#[derive(Debug)]
-struct Piece {
-    kind: PieceKind,
-    color: Color,
+fn moves(piece: Piece) -> Vec<&'static str> {
+    match piece {
+        Piece::Pawn(_) => vec!["_f2", "f1", "*fr1", "*fl1"],
+        Piece::Bishop(_) => vec!["fr-", "fl-", "br-", "bl-"],
+    }
+
 }
