@@ -1,9 +1,26 @@
 fn main() {
-    println!("Hello, world!");
-    let p0 = Piece::Pawn(Color::White);
-    for m in moves(p0) {
-        println!("{}", m);
-    }
+    // println!("Hello, world!");
+    // let p0 = Piece::Pawn(Color::White);
+    // for m in moves(p0) {
+    //     println!("{}", m);
+    // }
+
+
+    draw_board();
+}
+
+
+fn draw_board() {
+    // let pieces_row = vec!([Piece::None]);
+    let rows = 8;
+    let cols = 8;
+    
+    for row in 0..rows {
+        for col in 0..cols {
+            print!("|_");
+        }
+        println!("|");
+    } 
 }
 
 /*
@@ -39,6 +56,7 @@ enum Color {
 enum Piece {
     Pawn(Color),
     Bishop(Color),
+    None,
     // Knight(Color),
     // Rook(Color),
     // Queen(Color),
