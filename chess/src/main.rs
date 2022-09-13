@@ -1,13 +1,38 @@
 fn main() {
+
+    let size: usize = 8;
+
     let mut board = Board {
-        board: vec![
-            vec![Content::Empty, Content::White(Piece::Pawn)],
-            vec![Content::Black(Piece::Pawn), Content::Empty]
-        ],
+        board: vec![vec![Content::Empty; size]; size],
     };
+    board.board[0] = vec![
+        Content::Black(Piece::Rook),
+        Content::Black(Piece::Knight),
+        Content::Black(Piece::Bishop),
+        Content::Black(Piece::Queen),
+        Content::Black(Piece::King),
+        Content::Black(Piece::Bishop),
+        Content::Black(Piece::Knight),
+        Content::Black(Piece::Rook),
+    ];
+    board.board[1] = vec![Content::Black(Piece::Pawn); size];
+    board.board[6] = vec![Content::White(Piece::Pawn); size];
+
+    board.board[7] = vec![
+        Content::White(Piece::Rook),
+        Content::White(Piece::Knight),
+        Content::White(Piece::Bishop),
+        Content::White(Piece::Queen),
+        Content::White(Piece::King),
+        Content::White(Piece::Bishop),
+        Content::White(Piece::Knight),
+        Content::White(Piece::Rook),
+    ];
+
+
     board.draw();
-    board.my_move();
-    board.draw();
+    // board.my_move();
+    // board.draw();
 }
 
 /*
@@ -34,10 +59,6 @@ br-
 */
 use std::fmt::Write;
 
-enum Coin {
-    Penny,
-    Nickel,
-}
 
 #[derive(Clone)] // could not implement copy
 struct Board {
@@ -48,27 +69,35 @@ struct Board {
 
 impl Board {
     fn draw(&self) {
+        let mut i = 8;
         for row in &self.board {
+            print!("{} ", i);
             for square in row {
                 print!("|{}", square);
             }
             println!("|");
+            i-=1;
         }
+        println!("   a b c d e f g h");
+        println!("");
     }
     fn my_move(&mut self) {
-        let tmp = self.board[1][0];
-        self.board[1][0] = self.board[0][0];
-        self.board[0][0] = tmp;
+        let tmp = self.board[4][4];
+        self.board[4][4] = self.board[2][2];
+        self.board[2][2] = tmp;
+    }
+    fn get_possible_moves(&self, row: i32, col: i32) -> Vec<Vec<i32>> {
+        vec![vec![0, 0], vec![row, col]]
     }
 }
 #[derive(Copy, Clone)]
 enum Piece {
     Pawn,
-    // Bishop,
-    // Knight,
-    // Rook,
-    // Queen,
-    // King,
+    Bishop,
+    Knight,
+    Rook,
+    Queen,
+    King,
 }
 
 #[derive(Copy, Clone)]
@@ -80,8 +109,26 @@ enum Content {
 impl Content {
     fn get_symbol(&self) -> &'static str {
         match self {
-            Content::White(Piece::Pawn) => "♟",
-            Content::Black(Piece::Pawn) => "♙",
+            Content::White(piece) => {
+                match piece {
+                    Piece::Pawn => "♙",
+                    Piece::Bishop => "♗",
+                    Piece::Knight => "♘",
+                    Piece::Rook => "♖",
+                    Piece::Queen => "♕",
+                    Piece::King => "♔",
+                }
+            },
+            Content::Black(piece) => {
+                match piece {
+                    Piece::Pawn => "♟",
+                    Piece::Bishop => "♝",
+                    Piece::Knight => "♞",
+                    Piece::Rook => "♜",
+                    Piece::Queen => "♛",
+                    Piece::King => "♚",
+                }
+            },
             Content::Empty => "_",
         }
     }
