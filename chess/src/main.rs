@@ -1,26 +1,13 @@
 fn main() {
-    // println!("Hello, world!");
-    // let p0 = Piece::Pawn(Color::White);
-    // for m in moves(p0) {
-    //     println!("{}", m);
-    // }
-
-
-    draw_board();
-}
-
-
-fn draw_board() {
-    // let pieces_row = vec!([Piece::None]);
-    let rows = 8;
-    let cols = 8;
-    
-    for row in 0..rows {
-        for col in 0..cols {
-            print!("|_");
-        }
-        println!("|");
-    } 
+    let mut board = Board {
+        board: vec![
+            vec![Content::Empty, Content::White(Piece::Pawn)],
+            vec![Content::Black(Piece::Pawn), Content::Empty]
+        ],
+    };
+    board.draw();
+    board.my_move();
+    board.draw();
 }
 
 /*
@@ -45,28 +32,63 @@ bl-
 br-
 
 */
+use std::fmt::Write;
 
-
-#[derive(Debug)]
-enum Color {
-    Black,
-    White,
-}
-#[derive(Debug)]
-enum Piece {
-    Pawn(Color),
-    Bishop(Color),
-    None,
-    // Knight(Color),
-    // Rook(Color),
-    // Queen(Color),
-    // King(Color),
+enum Coin {
+    Penny,
+    Nickel,
 }
 
-fn moves(piece: Piece) -> Vec<&'static str> {
-    match piece {
-        Piece::Pawn(_) => vec!["_f2", "f1", "*fr1", "*fl1"],
-        Piece::Bishop(_) => vec!["fr-", "fl-", "br-", "bl-"],
+#[derive(Clone)] // could not implement copy
+struct Board {
+    board: Vec<Vec<Content>>,
+}
+
+
+
+impl Board {
+    fn draw(&self) {
+        for row in &self.board {
+            for square in row {
+                print!("|{}", square);
+            }
+            println!("|");
+        }
     }
-
+    fn my_move(&mut self) {
+        let tmp = self.board[1][0];
+        self.board[1][0] = self.board[0][0];
+        self.board[0][0] = tmp;
+    }
 }
+#[derive(Copy, Clone)]
+enum Piece {
+    Pawn,
+    // Bishop,
+    // Knight,
+    // Rook,
+    // Queen,
+    // King,
+}
+
+#[derive(Copy, Clone)]
+enum Content {
+    White(Piece),
+    Black(Piece),
+    Empty,
+}
+impl Content {
+    fn get_symbol(&self) -> &'static str {
+        match self {
+            Content::White(Piece::Pawn) => "♟",
+            Content::Black(Piece::Pawn) => "♙",
+            Content::Empty => "_",
+        }
+    }
+}
+impl std::fmt::Display for Content {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.get_symbol())
+    }
+}
+
