@@ -1,3 +1,7 @@
+
+
+
+
 fn main() {
 
     let mut board = build_board();
