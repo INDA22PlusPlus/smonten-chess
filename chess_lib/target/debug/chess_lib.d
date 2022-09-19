@@ -1,1 +1,0 @@
-/Users/seb/Documents/KTH/03/INDA/repos/smonten-chess/chess_lib/target/debug/chess_lib: /Users/seb/Documents/KTH/03/INDA/repos/smonten-chess/chess_lib/src/lib.rs /Users/seb/Documents/KTH/03/INDA/repos/smonten-chess/chess_lib/src/main.rs

@@ -1,2 +1,4 @@
 .DS_Store
 chess_lib/target
+chess_lib/target/
+chess_lib/target/*
