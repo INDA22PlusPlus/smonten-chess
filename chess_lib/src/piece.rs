@@ -1,20 +1,24 @@
+
+#[derive(Clone)]
 pub struct Move {
     pub move_vecs: Vec<(i32, i32)>,
     pub move_type: MoveType
 }
+
+#[derive(Copy, Clone)]
 pub enum MoveType {
     Once,
     Inf
 }
 
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Color {
     Black,
     White
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum PieceType {
     Pawn,
     Bishop,
