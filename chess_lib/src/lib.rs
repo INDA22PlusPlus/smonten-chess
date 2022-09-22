@@ -402,7 +402,7 @@ impl Game {
             Color::Black => "black",
             Color::White => "white",
         };
-        println!("checking if {} king is checkmated", col);
+        // println!("checking if {} king is checkmated", col);
 
         // let mut can_save_king = false;
 
@@ -414,13 +414,13 @@ impl Game {
                     Content::Occupied(this_p) => {
                         if this_p.color == color {
                             
-                            println!("now checking potential moves at ({}, {})", x, y);
-                            dbg!(this_p.piece_type);
+                            // println!("now checking potential moves at ({}, {})", x, y);
+                            // dbg!(this_p.piece_type);
 
                             match self.get_destinations((x, y)) {
                                 Destinations::Exists(dest_vecs) => {
                                     for dest_vec in dest_vecs {
-                                        println!("\ttrying moving ({}, {}) to ({}, {})", x, y, dest_vec.0, dest_vec.1);
+                                        // println!("\ttrying moving ({}, {}) to ({}, {})", x, y, dest_vec.0, dest_vec.1);
                                         let mut tmp_game = self.clone();
                                         // OBS need to prevent tmp game from panicing "not your turn"
                                         // so the tmp_games turn has to be set to color of current piece
@@ -474,6 +474,24 @@ impl Game {
     pub fn get_turn(&self) -> Color {
         self.turn
     }
+
+    pub fn get_gamestate(&self) -> GameState {
+        if self.is_checked(Color::Black) {
+            if self.is_checkmated(Color::Black) {
+                return GameState::IsCheckMated(Color::Black);
+            } else {
+                return GameState::IsChecked(Color::Black);
+            }
+        } else if self.is_checked(Color::White) {
+            if self.is_checkmated(Color::White) {
+                return GameState::IsCheckMated(Color::White);
+            } else {
+                return GameState::IsChecked(Color::White);
+            }
+        } else {
+            return GameState::NoThreats;
+        }
+    }
 }
 
 
@@ -509,10 +527,12 @@ pub enum Destination {
     Kill((usize, usize))
 }
 
-
-enum GameState {
+#[derive(Debug)]
+pub enum GameState {
+    NoThreats,
     IsChecked(Color),
-    CheckMate(Color),
+    IsCheckMated(Color),
+
 }
 
 #[cfg(test)]
@@ -585,6 +605,20 @@ mod tests {
         game.move_from_to((3, 0), (7, 4));
         game.draw();
         assert!(game.is_checkmated(Color::White));
+    }
+
+    #[test]
+    fn scholars_mate() {
+        let mut game = create_game();
+        game.move_from_to((4, 6), (4, 4));
+        game.move_from_to((4, 1), (4, 3));
+        game.move_from_to((5, 7),(2, 4));
+        game.move_from_to((1, 0),(2, 2));
+        game.move_from_to((3, 7),(7, 3));
+        game.move_from_to((6, 0),(5, 2));
+        game.move_from_to((7, 3),(5, 1));
+        game.draw();
+        assert!(game.is_checked(Color::Black));
     }
 
 
