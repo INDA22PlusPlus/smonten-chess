@@ -122,42 +122,77 @@ impl Game {
 
     fn get_castling_destinations(&self, this_p: Piece, x: usize, y: usize) -> Vec<(usize, usize)> {
         let mut cd: Vec<(usize, usize)> = vec![];
-        for vars in vec![(1, 4), (-1, 3)] {
-            let k = vars.0;
-            let threshold = vars.1;
-        
+        let mut empty: Vec<(usize, usize)> = vec![];
 
-
-            if this_p.times_moved == 0 {
-                let mut i = 1;
-                let mut newx = x;
-                loop {
-                    newx = (newx as i32 - i*k) as usize;
-                    if i<threshold {
-                        match self.board[y][newx] {
-                            Content::Empty => {
-                                i += 1;
-                            },
-                            _ => break
-                        }
-                    } else {
-                        match self.board[y][newx] {
-                            Content::Occupied(other_p) => {
-                                match other_p.piece_type {
-                                    PieceType::Rook => {
-                                        cd.push((newx, y));
-                                    },
-                                _ => break
-                                }
-                            },
-                            Content::Empty => break
-                        }
-
-                    }
-                }
-            }
-
+        //CHECKING RIGHT
+        let mut other_c = self.board[y][(x as i32 - 1) as usize];
+        match other_c {
+            Content::Empty => (),
+            _ => return empty
         }
+        other_c = self.board[y][(x as i32 - 2) as usize];
+        match other_c {
+            Content::Empty => (),
+            _ => return empty
+        }
+        other_c = self.board[y][(x as i32 - 3) as usize];
+        match other_c {
+            Content::Empty => (),
+            _ => return empty
+        }
+        other_c = self.board[y][(x as i32 - 4) as usize];
+        match other_c {
+            Content::Occupied(other_p) => {
+                match other_p.piece_type {
+                    PieceType::Rook => {
+                        if other_p.times_moved != 0 {
+                            return empty;
+                        } else {
+                            cd.push((
+                                (x as i32 - 2) as usize,
+                                y
+                            ));
+                        }
+                    },
+                    _ => return empty
+                }
+            },
+            Content::Empty => return empty
+        }
+
+
+        //CHECKING LEFT
+        other_c = self.board[y][(x as i32 + 1) as usize];
+        match other_c {
+            Content::Empty => (),
+            _ => return empty
+        }
+        other_c = self.board[y][(x as i32 + 2) as usize];
+        match other_c {
+            Content::Empty => (),
+            _ => return empty
+        }
+        other_c = self.board[y][(x as i32 + 3) as usize];
+        match other_c {
+            Content::Occupied(other_p) => {
+                match other_p.piece_type {
+                    PieceType::Rook => {
+                        if other_p.times_moved != 0 {
+                            return empty;
+                        } else {
+                            cd.push((
+                                (x as i32 + 2) as usize,
+                                y
+                            ));
+                        }
+                    },
+                    _ => return empty
+                }
+            },
+            Content::Empty => return empty
+        }
+
+        
         return cd;
     }
 
@@ -671,5 +706,19 @@ mod tests {
         assert!(game.is_checked(Color::Black));
     }
 
+    #[test]
+    fn casteling() {
+        let mut game = create_game();
+        game.move_from_to((0, 6), (0, 5));
+        game.move_from_to((1, 0), (0, 2));
+        game.move_from_to((1, 6), (1, 5));
+        game.move_from_to((1, 1), (1, 2));
+        game.move_from_to((2, 6), (2, 5));
+        game.move_from_to((2, 0), (1, 1));
+        game.move_from_to((3, 6), (3, 5));
+        game.move_from_to((3, 1), (3, 2));
+        game.move_from_to((4, 6), (4, 5));
+        game.move_from_to((3, 0), (3, 1));
+    }
 
 }
