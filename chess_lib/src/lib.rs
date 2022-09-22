@@ -120,6 +120,47 @@ impl Game {
         }
     }
 
+    fn get_castling_destinations(&self, this_p: Piece, x: usize, y: usize) -> Vec<(usize, usize)> {
+        let mut cd: Vec<(usize, usize)> = vec![];
+        for vars in vec![(1, 4), (-1, 3)] {
+            let k = vars.0;
+            let threshold = vars.1;
+        
+
+
+            if this_p.times_moved == 0 {
+                let mut i = 1;
+                let mut newx = x;
+                loop {
+                    newx = (newx as i32 - i*k) as usize;
+                    if i<threshold {
+                        match self.board[y][newx] {
+                            Content::Empty => {
+                                i += 1;
+                            },
+                            _ => break
+                        }
+                    } else {
+                        match self.board[y][newx] {
+                            Content::Occupied(other_p) => {
+                                match other_p.piece_type {
+                                    PieceType::Rook => {
+                                        cd.push((newx, y));
+                                    },
+                                _ => break
+                                }
+                            },
+                            Content::Empty => break
+                        }
+
+                    }
+                }
+            }
+
+        }
+        return cd;
+    }
+
     fn get_destinations_not_pawns(&self, this_p: Piece, x: usize, y: usize) -> Destinations {
         // k factor 1 or -1 to rotate movement vectors if white (bottom)
         let k = match this_p.color {
@@ -130,6 +171,15 @@ impl Game {
         let moves = this_p.get_moves();
         // let mut destinations: Vec<Destination> = vec![];
         let mut destinations: Vec<(usize, usize)> = vec![];
+
+        match this_p.piece_type {
+            PieceType::King => {
+                println!("check for Castling");
+                dbg!(self.get_castling_destinations(this_p, x, y));
+            },
+            _ => (),
+        }
+
     
         match moves.move_type {
             MoveType::Once => {
