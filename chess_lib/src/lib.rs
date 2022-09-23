@@ -409,10 +409,7 @@ impl Game {
                     match self.get_destinations(from) {
                         Destinations::Exists(d) => {
 
-
-                            // println!("looking for ({}, {}) in:", to.0, to.1);
-                            // dbg!(&d);
-
+                            // double check that move is legal
                             if d.contains(&to) {
                                 
                                 // UPDATE TIMES MOVED IN CURRENT PIECE
@@ -422,50 +419,31 @@ impl Game {
                                 match this_p.piece_type {
                                     PieceType::King => {
                                         
+                                        // update current king position
                                         match this_p.color {
                                             Color::White => self.w_king = to,
                                             Color::Black => self.b_king = to,
                                         }
-                                        //CASTLING
+                                        //CASTLING?
                                         let delta_x = to.0 as i32 - from.0 as i32;
                                         if delta_x == -2 {
-                                            println!("caslting left confirmed!");
-                                            self.board[from.1][0] = Content::Empty;
-                                            self.board[from.1][2] = Content::Occupied(Piece {
-                                                color: this_p.color,
-                                                piece_type: PieceType::King,
-                                                times_moved: 1
-                                            });
-                                            self.board[from.1][3] = Content::Occupied(Piece {
-                                                color: this_p.color,
-                                                piece_type: PieceType::Rook,
-                                                times_moved: 1
-                                            });
-                                            self.board[from.1][4] = Content::Empty;
+                                            // castling left
+                                            self.castle_left(this_p.color);
                                             self.next_turn();
                                             
                                         } else if delta_x == 2 {
-                                            println!("caslting right confirmed!");
-                                            self.board[from.1][4] = Content::Empty;
-                                            self.board[from.1][5] = Content::Occupied(Piece {
-                                                color: this_p.color,
-                                                piece_type: PieceType::Rook,
-                                                times_moved: 1
-                                            });
-                                            self.board[from.1][6] = Content::Occupied(Piece {
-                                                color: this_p.color,
-                                                piece_type: PieceType::King,
-                                                times_moved: 1
-                                            });
-                                            self.board[from.1][7] = Content::Empty;
+                                            // castling right
+                                            self.castle_right(this_p.color);
                                             self.next_turn();
                                         } else {
+                                            // regular king move
                                             self.board[to.1][to.0] = self.board[from.1][from.0];
                                             self.board[from.1][from.0] = Content::Empty;
                                             self.next_turn();
                                         }
                                     },
                                     _ => {
+                                        // regular move
                                         self.board[to.1][to.0] = self.board[from.1][from.0];
                                         self.board[from.1][from.0] = Content::Empty;
                                         self.next_turn();
@@ -483,6 +461,44 @@ impl Game {
                 }
             }
         }
+    }
+
+    fn castle_left(&mut self, color: Color) {
+        let y: usize = match color {
+            Color::Black => 0,
+            Color::White => 7,
+        };
+        self.board[y][0] = Content::Empty;
+        self.board[y][2] = Content::Occupied(Piece {
+            color: color,
+            piece_type: PieceType::King,
+            times_moved: 1
+        });
+        self.board[y][3] = Content::Occupied(Piece {
+            color: color,
+            piece_type: PieceType::Rook,
+            times_moved: 1
+        });
+        self.board[y][4] = Content::Empty;
+    }
+    fn castle_right(&mut self, color: Color) {
+        let y: usize = match color {
+            Color::Black => 0,
+            Color::White => 7,
+        };
+        self.board[y][4] = Content::Empty;
+        self.board[y][5] = Content::Occupied(Piece {
+            color: color,
+            piece_type: PieceType::Rook,
+            times_moved: 1
+        });
+        self.board[y][6] = Content::Occupied(Piece {
+            color: color,
+            piece_type: PieceType::King,
+            times_moved: 1
+        });
+        self.board[y][7] = Content::Empty;
+        
     }
 
     fn next_turn(&mut self) {
