@@ -173,80 +173,6 @@ impl Game {
             right: first_rank[0..=7] == right_side
         };
 
-        
-        // let mut cd: Vec<(usize, usize)> = vec![];
-        // let mut empty: Vec<(usize, usize)> = vec![];
-
-        // //CHECKING RIGHT
-        // let mut other_c = self.board[y][(x as i32 - 1) as usize];
-        // match other_c {
-        //     Content::Empty => (),
-        //     _ => return empty
-        // }
-        // other_c = self.board[y][(x as i32 - 2) as usize];
-        // match other_c {
-        //     Content::Empty => (),
-        //     _ => return empty
-        // }
-        // other_c = self.board[y][(x as i32 - 3) as usize];
-        // match other_c {
-        //     Content::Empty => (),
-        //     _ => return empty
-        // }
-        // other_c = self.board[y][(x as i32 - 4) as usize];
-        // match other_c {
-        //     Content::Occupied(other_p) => {
-        //         match other_p.piece_type {
-        //             PieceType::Rook => {
-        //                 if other_p.times_moved != 0 {
-        //                     return empty;
-        //                 } else {
-        //                     cd.push((
-        //                         (x as i32 - 2) as usize,
-        //                         y
-        //                     ));
-        //                 }
-        //             },
-        //             _ => return empty
-        //         }
-        //     },
-        //     Content::Empty => return empty
-        // }
-
-
-        // //CHECKING LEFT
-        // other_c = self.board[y][(x as i32 + 1) as usize];
-        // match other_c {
-        //     Content::Empty => (),
-        //     _ => return empty
-        // }
-        // other_c = self.board[y][(x as i32 + 2) as usize];
-        // match other_c {
-        //     Content::Empty => (),
-        //     _ => return empty
-        // }
-        // other_c = self.board[y][(x as i32 + 3) as usize];
-        // match other_c {
-        //     Content::Occupied(other_p) => {
-        //         match other_p.piece_type {
-        //             PieceType::Rook => {
-        //                 if other_p.times_moved != 0 {
-        //                     return empty;
-        //                 } else {
-        //                     cd.push((
-        //                         (x as i32 + 2) as usize,
-        //                         y
-        //                     ));
-        //                 }
-        //             },
-        //             _ => return empty
-        //         }
-        //     },
-        //     Content::Empty => return empty
-        // }
-
-        
-        // return cd;
     }
 
     fn get_destinations_not_pawns(&self, this_p: Piece, x: usize, y: usize) -> Destinations {
@@ -544,39 +470,6 @@ impl Game {
         }
     }
 
-    // fn check_check(&self) {
-    //     let mut x = 0;
-    //     let mut y = 0;
-    //     for row in & self.board {
-    //         for square in row {
-    //             match square {
-    //                 Content::Occupied(this_p) => {
-    //                     match self.get_destinations((x as usize, y as usize)) {
-    //                         Destinations::Exists(d) => {
-    //                             match this_p.color {
-    //                                 Color::White => {
-    //                                     if d.contains(&self.b_king) {
-    //                                         println!("Check Black!");
-    //                                     }
-    //                                 },
-    //                                 Color::Black => {
-    //                                     if d.contains(&self.w_king) {
-    //                                         println!("Check White!");
-    //                                     }
-    //                                 },
-    //                             }
-    //                         },
-    //                         Destinations::None => (),
-    //                     }
-    //                 },
-    //                 Content::Empty => (),
-    //             }
-    //             x += 1;
-    //         }
-    //         x = 0;
-    //         y += 1;
-    //     }
-    // }
     fn check_check(&mut self) {
         self.w_check = self.is_threatened(self.w_king);
         self.b_check = self.is_threatened(self.b_king);
@@ -600,9 +493,6 @@ impl Game {
             Color::Black => "black",
             Color::White => "white",
         };
-        // println!("checking if {} king is checkmated", col);
-
-        // let mut can_save_king = false;
 
         let mut x = 0;
         let mut y = 0;
@@ -611,20 +501,17 @@ impl Game {
                 match square {
                     Content::Occupied(this_p) => {
                         if this_p.color == color {
-                            
-                            // println!("now checking potential moves at ({}, {})", x, y);
-                            // dbg!(this_p.piece_type);
 
                             match self.get_destinations((x, y)) {
                                 Destinations::Exists(dest_vecs) => {
                                     for dest_vec in dest_vecs {
-                                        // println!("\ttrying moving ({}, {}) to ({}, {})", x, y, dest_vec.0, dest_vec.1);
+
                                         let mut tmp_game = self.clone();
                                         // OBS need to prevent tmp game from panicing "not your turn"
                                         // so the tmp_games turn has to be set to color of current piece
                                         tmp_game.turn = this_p.color;
                                         tmp_game.move_from_to((x, y), dest_vec);
-                                        // tmp_game.check_check();
+
                                         if ! tmp_game.is_checked(color) {
                                             return false;
                                         }
@@ -636,24 +523,14 @@ impl Game {
                     }
                     Content::Empty => (),
                 }
-                x = (x as i32 + 1) as usize;
+                x = (x as i32 + 1) as usize; // increment x
             }
+            // reset x and increment y
             x = 0;
             y = (y as i32 + 1) as usize;
         }
+        // only if the program reaches this point, the king must be checkmated
         return true;
-        // match self.get_destinations(king_xy) {
-        //     Destinations::Exists(king_dests) => {
-        //         let mut safe_dests: Vec<(usize, usize)> = vec![];
-        //         for king_dest in king_dests {
-        //             if !self.is_threatened(king_dest) {
-        //                 safe_dests.push(king_dest);
-        //             }
-        //         }
-        //         return safe_dests.len() == 0;
-        //     },
-        //     Destinations::None => true,
-        // }
 
     }
 
