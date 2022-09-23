@@ -3,8 +3,9 @@ mod content;
 
 
 
-use piece::*;
-use content::*;
+
+pub use piece::*;
+pub use content::*;
 
 
 #[derive(Clone)]
@@ -120,80 +121,132 @@ impl Game {
         }
     }
 
-    fn get_castling_destinations(&self, this_p: Piece, x: usize, y: usize) -> Vec<(usize, usize)> {
-        let mut cd: Vec<(usize, usize)> = vec![];
-        let mut empty: Vec<(usize, usize)> = vec![];
+    pub fn can_castle(&self, color: Color) -> CanCastle {
 
-        //CHECKING RIGHT
-        let mut other_c = self.board[y][(x as i32 - 1) as usize];
-        match other_c {
-            Content::Empty => (),
-            _ => return empty
-        }
-        other_c = self.board[y][(x as i32 - 2) as usize];
-        match other_c {
-            Content::Empty => (),
-            _ => return empty
-        }
-        other_c = self.board[y][(x as i32 - 3) as usize];
-        match other_c {
-            Content::Empty => (),
-            _ => return empty
-        }
-        other_c = self.board[y][(x as i32 - 4) as usize];
-        match other_c {
-            Content::Occupied(other_p) => {
-                match other_p.piece_type {
-                    PieceType::Rook => {
-                        if other_p.times_moved != 0 {
-                            return empty;
-                        } else {
-                            cd.push((
-                                (x as i32 - 2) as usize,
-                                y
-                            ));
-                        }
-                    },
-                    _ => return empty
+        let first_rank = match color {
+            Color::Black => self.board[0].clone(),
+            Color::White => self.board[7].clone(),
+        };
+        //TRYING LEFT
+        let left_side = vec![
+            Content::Occupied(
+                Piece {
+                    color: color,
+                    piece_type: PieceType::Rook,
+                    times_moved: 0 
                 }
-            },
-            Content::Empty => return empty
-        }
-
-
-        //CHECKING LEFT
-        other_c = self.board[y][(x as i32 + 1) as usize];
-        match other_c {
-            Content::Empty => (),
-            _ => return empty
-        }
-        other_c = self.board[y][(x as i32 + 2) as usize];
-        match other_c {
-            Content::Empty => (),
-            _ => return empty
-        }
-        other_c = self.board[y][(x as i32 + 3) as usize];
-        match other_c {
-            Content::Occupied(other_p) => {
-                match other_p.piece_type {
-                    PieceType::Rook => {
-                        if other_p.times_moved != 0 {
-                            return empty;
-                        } else {
-                            cd.push((
-                                (x as i32 + 2) as usize,
-                                y
-                            ));
-                        }
-                    },
-                    _ => return empty
+            ),
+            Content::Empty,
+            Content::Empty,
+            Content::Empty,
+            Content::Occupied(
+                Piece {
+                    color: color,
+                    piece_type: PieceType::King,
+                    times_moved: 0 
                 }
-            },
-            Content::Empty => return empty
-        }
+            )
+
+        ];
+        //TRYING RIGHT
+        let right_side = vec![
+            Content::Occupied(
+                Piece {
+                    color: color,
+                    piece_type: PieceType::King,
+                    times_moved: 0 
+                }
+            ),
+            Content::Empty,
+            Content::Empty,
+            Content::Occupied(
+                Piece {
+                    color: color,
+                    piece_type: PieceType::Rook,
+                    times_moved: 0 
+                }
+            )
+
+        ];
+        return CanCastle {
+            left: first_rank[0..=4] == left_side,
+            right: first_rank[0..=7] == right_side
+        };
 
         
-        return cd;
+        // let mut cd: Vec<(usize, usize)> = vec![];
+        // let mut empty: Vec<(usize, usize)> = vec![];
+
+        // //CHECKING RIGHT
+        // let mut other_c = self.board[y][(x as i32 - 1) as usize];
+        // match other_c {
+        //     Content::Empty => (),
+        //     _ => return empty
+        // }
+        // other_c = self.board[y][(x as i32 - 2) as usize];
+        // match other_c {
+        //     Content::Empty => (),
+        //     _ => return empty
+        // }
+        // other_c = self.board[y][(x as i32 - 3) as usize];
+        // match other_c {
+        //     Content::Empty => (),
+        //     _ => return empty
+        // }
+        // other_c = self.board[y][(x as i32 - 4) as usize];
+        // match other_c {
+        //     Content::Occupied(other_p) => {
+        //         match other_p.piece_type {
+        //             PieceType::Rook => {
+        //                 if other_p.times_moved != 0 {
+        //                     return empty;
+        //                 } else {
+        //                     cd.push((
+        //                         (x as i32 - 2) as usize,
+        //                         y
+        //                     ));
+        //                 }
+        //             },
+        //             _ => return empty
+        //         }
+        //     },
+        //     Content::Empty => return empty
+        // }
+
+
+        // //CHECKING LEFT
+        // other_c = self.board[y][(x as i32 + 1) as usize];
+        // match other_c {
+        //     Content::Empty => (),
+        //     _ => return empty
+        // }
+        // other_c = self.board[y][(x as i32 + 2) as usize];
+        // match other_c {
+        //     Content::Empty => (),
+        //     _ => return empty
+        // }
+        // other_c = self.board[y][(x as i32 + 3) as usize];
+        // match other_c {
+        //     Content::Occupied(other_p) => {
+        //         match other_p.piece_type {
+        //             PieceType::Rook => {
+        //                 if other_p.times_moved != 0 {
+        //                     return empty;
+        //                 } else {
+        //                     cd.push((
+        //                         (x as i32 + 2) as usize,
+        //                         y
+        //                     ));
+        //                 }
+        //             },
+        //             _ => return empty
+        //         }
+        //     },
+        //     Content::Empty => return empty
+        // }
+
+        
+        // return cd;
     }
 
     fn get_destinations_not_pawns(&self, this_p: Piece, x: usize, y: usize) -> Destinations {
@@ -207,13 +260,13 @@ impl Game {
         // let mut destinations: Vec<Destination> = vec![];
         let mut destinations: Vec<(usize, usize)> = vec![];
 
-        match this_p.piece_type {
-            PieceType::King => {
-                println!("check for Castling");
-                dbg!(self.get_castling_destinations(this_p, x, y));
-            },
-            _ => (),
-        }
+        // match this_p.piece_type {
+        //     PieceType::King => {
+        //         println!("check for Castling");
+        //         dbg!(self.get_castling_destinations(this_p, x, y));
+        //     },
+        //     _ => (),
+        // }
 
     
         match moves.move_type {
@@ -620,8 +673,16 @@ pub enum GameState {
 
 }
 
+#[derive(Debug, PartialEq)]
+pub struct CanCastle {
+    left: bool,
+    right: bool
+}
+
 #[cfg(test)]
 mod tests {
+    use core::panic;
+
     use super::*;
 
     #[test]
@@ -719,6 +780,20 @@ mod tests {
         game.move_from_to((3, 1), (3, 2));
         game.move_from_to((4, 6), (4, 5));
         game.move_from_to((3, 0), (3, 1));
+        assert_eq!(
+            game.can_castle(Color::Black),
+            CanCastle {
+                left: true,
+                right: false
+            }
+        );
+        assert_eq!(
+            game.can_castle(Color::White),
+            CanCastle {
+                left: false,
+                right: false
+            }
+        );
     }
 
 }

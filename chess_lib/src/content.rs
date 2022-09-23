@@ -1,6 +1,6 @@
 use crate::piece::*;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Content {
     Occupied(Piece),
     Empty
