@@ -1,12 +1,12 @@
-# This chess library can #
+# This chess library can: #
 * Keep track of all pieces
 * Keep track of who's turn it is
 * Manage all basic moves and kills
 * Determine if a player is checked or checkmated
 * Manage castling
-
-# This chess library CAN NOT 💀 #
 * Manage Promotion
+
+# This chess library CAN NOT 💀: #
 * Manage En Passant
 
 
@@ -19,7 +19,9 @@ call | does | example
 `draw()` | prints current game board to terminal | `game.draw()`
 `get_turn()` | returns enum `Color` (`Balack` or `White`), color of players who's turn it is | `cur_turn_col = game.get_turn()`
 `get_gamestate()` | returns enum `GameState` (`NoThreats`or `IsChecked(Color)` or `IsCheckMated(Color)`) | `let cur_state = game.get_gamestate()`
-`coordinates_playable(xy: (usize, usize))` | returns true/false if quare at xy if current player has a piece there | has_piece = `let is_playable = game.coordinates_playable((4, 3))`
+`coordinates_playable(xy: (usize, usize))` | returns true/false if quare at xy if current player has a piece there | `let is_playable = game.coordinates_playable((4, 3))`
+`get_promotion_state()` | returns enum `Promotion`( `MustPromote(Color, (usize, usize))` or `None` ) | `let promstate = game.get_promotion_state()`
+`promote(new_piece_type: PieceType)` | replaces the piece that must be promoted with `new_piece_type`in correct color | `game.promote(PieceType::Queen)`
 
 
 This is what I thought most important but more methods for checking states and possibilites are available in the library

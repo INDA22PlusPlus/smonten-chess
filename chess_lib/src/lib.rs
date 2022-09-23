@@ -1,9 +1,5 @@
 mod piece;
 mod content;
-
-
-
-
 pub use piece::*;
 pub use content::*;
 
@@ -17,6 +13,7 @@ pub struct Game {
     b_king: (usize, usize),
     w_check: bool,
     b_check: bool,
+    must_promote: Promotion,
 }
 
 
@@ -32,6 +29,7 @@ impl Game {
         self.b_king = (4, 0);
         self.w_check = false;
         self.b_check = false;
+        self.must_promote = Promotion::None;
     }
     fn create_rank2(&self, color: Color) -> Vec<Content> {
         vec![
@@ -191,7 +189,7 @@ impl Game {
         horisontal move whithout the castling */
         match this_p.piece_type {
             PieceType::King => {
-                println!("checking for Castling, looking at king now");
+                // println!("checking for Castling, looking at king now");
                 let can_c = self.can_castle(this_p.color);
                 if can_c.left {
                     destinations.push((2, y))
@@ -326,8 +324,44 @@ impl Game {
         
     }
     
+    pub fn get_promotion_state(&self) -> Promotion {
+        self.must_promote
+    }
+
+    pub fn promote(&mut self, new_piece_type: PieceType) {
+        // CHECK THAT PROMOTION IS LEGAL
+        match new_piece_type {
+            PieceType::Queen | PieceType::Rook | PieceType::Bishop | PieceType::Knight => (),
+            _ => panic!("can not promote to other than queen, rook, bishop, or knight")
+        }
+        // DO THE PROMOTION
+        match self.must_promote {
+            Promotion::None => panic!("can not promote!"),
+            Promotion::MustPromote(color, xy) => {
+                match self.board[xy.1][xy.0] {
+                    Content::Empty => panic!("can not promote empty square!"),
+                    Content::Occupied(this_p) => {
+                        let cur_times_moved = this_p.times_moved;
+                        self.board[xy.1][xy.0] = Content::Occupied(Piece {
+                            color: color,
+                            piece_type: new_piece_type,
+                            times_moved: cur_times_moved
+                        });
+                        self.must_promote = Promotion::None;
+                        self.next_turn();
+                    }
+                }
+            }
+        }
+    }
 
     pub fn move_from_to(&mut self, from: (usize, usize), to: (usize, usize)) {
+        // CANT MAKE MOVE BEFORE PROMOTION
+        match self.must_promote {
+            Promotion::MustPromote(_, _) => panic!("must promote first!"),
+            Promotion::None => ()
+        }
+        // MAKING THE MOVE
         match self.board[from.1][from.0] {
             Content::Empty => panic!("Tried to move empty!"),
             Content::Occupied(mut this_p) => {
@@ -367,6 +401,24 @@ impl Game {
                                             self.board[from.1][from.0] = Content::Empty;
                                             self.next_turn();
                                         }
+                                    },
+                                    PieceType::Pawn => {
+                                        self.board[to.1][to.0] = self.board[from.1][from.0];
+                                        self.board[from.1][from.0] = Content::Empty;
+                                        
+                                        // last rank is row index of oponent's first rank
+                                        let last_rank: usize = match this_p.color {
+                                            Color::Black => 7,
+                                            Color::White => 0,
+                                        };
+                                        // PAWN HAS REACHED LAST RANK?
+                                        if to.1 == last_rank {
+                                            self.must_promote = Promotion::MustPromote(this_p.color, to);
+                                            // OBS NO next_turn()!!!!
+                                        } else {
+                                            self.next_turn();
+                                        }
+                                        
                                     },
                                     _ => {
                                         // regular move
@@ -582,6 +634,7 @@ pub fn create_game() -> Game {
         b_king: (4, 0),
         w_check: false,
         b_check: false,
+        must_promote: Promotion::None
     };
     game.reset();
     return game;
@@ -614,6 +667,12 @@ pub enum GameState {
 pub struct CanCastle {
     left: bool,
     right: bool
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum Promotion {
+    MustPromote(Color, (usize, usize)),
+    None
 }
 
 #[cfg(test)]
@@ -734,6 +793,60 @@ mod tests {
         game.move_from_to((6, 6), (6, 5));
         //performing the castling
         game.move_from_to((4, 0), (2, 0));
+    }
+
+    #[test]
+    #[should_panic]
+    fn promotion_fail() {
+        let mut game = create_game();
+        game.move_from_to((0, 6), (0, 4));
+        game.move_from_to((1, 1), (1, 3));
+        game.move_from_to((1, 6), (1, 4));
+        game.move_from_to((1, 3), (0, 4));
+        game.promote(PieceType::Queen);
+    }
+
+    #[test]
+    fn promotion() {
+        let mut game = create_game();
+        game.move_from_to((0, 6), (0, 4));
+        game.move_from_to((1, 1), (1, 3));
+        game.move_from_to((1, 6), (1, 4));
+        game.move_from_to((1, 3), (0, 4));
+        game.move_from_to((1, 4), (1, 3));
+        game.move_from_to((1, 0), (0, 2));
+        game.move_from_to((1, 3), (1, 2));
+        game.move_from_to((0, 4), (0, 5));
+        game.move_from_to((1, 2), (1, 1));
+        game.move_from_to((0, 5), (0, 6));
+        game.move_from_to((1, 1), (1, 0));
+    
+        game.promote(PieceType::Queen);
+    
+        game.move_from_to((0, 6), (1, 7));
+        
+        game.promote(PieceType::Rook);
+        
+        game.move_from_to((1, 0), (1, 1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn promotion_wrong_piece_type() {
+        let mut game = create_game();
+        game.move_from_to((0, 6), (0, 4));
+        game.move_from_to((1, 1), (1, 3));
+        game.move_from_to((1, 6), (1, 4));
+        game.move_from_to((1, 3), (0, 4));
+        game.move_from_to((1, 4), (1, 3));
+        game.move_from_to((1, 0), (0, 2));
+        game.move_from_to((1, 3), (1, 2));
+        game.move_from_to((0, 4), (0, 5));
+        game.move_from_to((1, 2), (1, 1));
+        game.move_from_to((0, 5), (0, 6));
+        game.move_from_to((1, 1), (1, 0));
+    
+        game.promote(PieceType::King);
     }
 
 }
