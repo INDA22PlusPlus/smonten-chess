@@ -18,8 +18,8 @@ call | does | example
 `move_from_to(from: (usize, usize), to: (usize, usize))` | moves piece | `game.move_from_to((4, 0), (2, 0))`
 `draw()` | prints current game board to terminal | `game.draw()`
 `get_turn()` | returns enum `Color` (`Balack` or `White`), color of players who's turn it is | `cur_turn_col = game.get_turn()`
-`is_checked(color: Color)` | returns true/false | `is_white_checked = is_checked(Color::White)`
-`is_checkmated(color: Color)` | returns true/false | `is_black_checkmated = is_checked(Color::Black)`
+`get_gamestate()` | returns enum `GameState` (`NoThreats`or `IsChecked(Color)` or `IsCheckMated(Color)`) | `let cur_state = game.get_gamestate()`
+`coordinates_playable(xy: (usize, usize))` | returns true/false if quare at xy if current player has a piece there | has_piece = `let is_playable = game.coordinates_playable((4, 3))`
 
 
 This is what I thought most important but more methods for checking states and possibilites are available in the library
