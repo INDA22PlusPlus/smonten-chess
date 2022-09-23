@@ -26,4 +26,4 @@ call | does | example
 This is what I thought most important but more methods for checking states and possibilites are available in the library
 
 ## important notes ##
-* promotion works like this: after a player has moved one of their pawns to last rank, the library expects the next action to be a call of promote(), any attempt to make a move will cause a `panic!`
+* promotion works like this: after a player has moved one of their pawns to last rank, the library expects the next action to be a call of `promote()`, any attempt to make a move will cause a `panic!`. Thus the user of this library need to check `get_promotion_state()` regularly. 
