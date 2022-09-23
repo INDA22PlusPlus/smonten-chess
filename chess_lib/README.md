@@ -32,7 +32,6 @@ This is what I thought most important but more methods for checking states and p
 ```
 extern crate chess_lib;
 use chess_lib::{Game, create_game, Destination, Color, PieceType};
-use std::io;
 ```
 
  ___
