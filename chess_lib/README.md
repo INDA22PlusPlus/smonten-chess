@@ -8,6 +8,7 @@
 
 # This chess library CAN NOT 💀: #
 * Manage En Passant
+* Prevent the king from moving into a check or checkmate
 
 
 ## user interface ##
