@@ -250,25 +250,34 @@ impl Game {
     }
 
     fn get_destinations_not_pawns(&self, this_p: Piece, x: usize, y: usize) -> Destinations {
-        // k factor 1 or -1 to rotate movement vectors if white (bottom)
+        // k: factor 1 or -1 to rotate movement vectors 180 deg if white (bottom)
         let k = match this_p.color {
             Color::Black => 1,
             Color::White => -1,
         };
     
         let moves = this_p.get_moves();
-        // let mut destinations: Vec<Destination> = vec![];
         let mut destinations: Vec<(usize, usize)> = vec![];
 
-        // match this_p.piece_type {
-        //     PieceType::King => {
-        //         println!("check for Castling");
-        //         dbg!(self.get_castling_destinations(this_p, x, y));
-        //     },
-        //     _ => (),
-        // }
+        // ADDING POTENTIAL CASTLING DESTINATIONS 
+        /* only need to add the kings destination,
+        the rook will be able to make the same
+        horisontal move whithout the castling */
+        match this_p.piece_type {
+            PieceType::King => {
+                println!("checking for Castling, looking at king now");
+                let can_c = self.can_castle(this_p.color);
+                if can_c.left {
+                    destinations.push((2, y))
+                }
+                if can_c.right {
+                    destinations.push((6, y))
+                }
+            },
+            _ => (),
+        }
 
-    
+        // ADDING REGULAR DESTINATIONS
         match moves.move_type {
             MoveType::Once => {
                 
@@ -412,21 +421,56 @@ impl Game {
 
                                 match this_p.piece_type {
                                     PieceType::King => {
+                                        
                                         match this_p.color {
                                             Color::White => self.w_king = to,
                                             Color::Black => self.b_king = to,
                                         }
+                                        //CASTLING
+                                        let delta_x = to.0 as i32 - from.0 as i32;
+                                        if delta_x == -2 {
+                                            println!("caslting left confirmed!");
+                                            self.board[from.1][0] = Content::Empty;
+                                            self.board[from.1][2] = Content::Occupied(Piece {
+                                                color: this_p.color,
+                                                piece_type: PieceType::King,
+                                                times_moved: 1
+                                            });
+                                            self.board[from.1][3] = Content::Occupied(Piece {
+                                                color: this_p.color,
+                                                piece_type: PieceType::Rook,
+                                                times_moved: 1
+                                            });
+                                            self.board[from.1][4] = Content::Empty;
+                                            self.next_turn();
+                                            
+                                        } else if delta_x == 2 {
+                                            println!("caslting right confirmed!");
+                                            self.board[from.1][4] = Content::Empty;
+                                            self.board[from.1][5] = Content::Occupied(Piece {
+                                                color: this_p.color,
+                                                piece_type: PieceType::Rook,
+                                                times_moved: 1
+                                            });
+                                            self.board[from.1][6] = Content::Occupied(Piece {
+                                                color: this_p.color,
+                                                piece_type: PieceType::King,
+                                                times_moved: 1
+                                            });
+                                            self.board[from.1][7] = Content::Empty;
+                                            self.next_turn();
+                                        } else {
+                                            self.board[to.1][to.0] = self.board[from.1][from.0];
+                                            self.board[from.1][from.0] = Content::Empty;
+                                            self.next_turn();
+                                        }
                                     },
-                                    _ => (),
+                                    _ => {
+                                        self.board[to.1][to.0] = self.board[from.1][from.0];
+                                        self.board[from.1][from.0] = Content::Empty;
+                                        self.next_turn();
+                                    },
                                 }
-                                
-
-
-                                self.board[to.1][to.0] = self.board[from.1][from.0];
-                                self.board[from.1][from.0] = Content::Empty;
-
-                                self.next_turn();
-
 
                             } else {
                                 panic!("This move is not legal!");
@@ -794,6 +838,9 @@ mod tests {
                 right: false
             }
         );
+        game.move_from_to((6, 6), (6, 5));
+        //performing the castling
+        game.move_from_to((4, 0), (2, 0));
     }
 
 }
