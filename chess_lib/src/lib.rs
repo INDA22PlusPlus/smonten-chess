@@ -592,7 +592,7 @@ impl Game {
                 Content::Occupied(this_p) => {
                     return this_p.color == self.turn;
                 },
-                Content::Empty => false,
+                Content::Empty => true,
             }
         } else {
             false
