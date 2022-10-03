@@ -601,6 +601,9 @@ impl Game {
     pub fn get_turn(&self) -> Color {
         self.turn
     }
+    pub fn get_board(&self) -> &Vec<Vec<Content>> {
+        &self.board
+    }
 
     pub fn get_gamestate(&self) -> GameState {
         if self.is_checked(Color::Black) {
