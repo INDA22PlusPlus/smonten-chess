@@ -61,7 +61,7 @@ impl Piece {
             },
             PieceType::Rook => {
                 Move {
-                    move_vecs: vec![(0, 1), (0, -1), (1, 0), (0, -1)],
+                    move_vecs: vec![(0, 1), (0, -1), (1, 0), (-1, 0)],
                     move_type: MoveType::Inf
                 }
             },
