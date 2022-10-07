@@ -99,6 +99,36 @@ impl Game {
         println!("");
     }
 
+    pub fn get_fen(&self) {
+        let mut fen = String::from("");
+        let mut i = 0;
+        let mut empty_count = 0;
+        for row in &self.board {
+            for square in row {
+                match square {
+                    Content::Empty => {
+                        empty_count += 1;
+                    },
+                    Content::Occupied(this_p) =>  {
+                        if empty_count > 0 {
+                            fen = format!("{}{}", fen, empty_count);
+                            empty_count = 0;
+                        }
+                        fen.push(this_p.get_char());
+                    }
+                }
+            }
+            if empty_count > 0 {
+                fen = format!("{}{}", fen, empty_count);
+                empty_count = 0;
+            }
+            if i < 8 {
+                fen.push('/');
+            }
+            i += 1;
+        }
+    }
+
     fn destination_outside_board(&self, x: i32, y: i32) -> bool {
         0 > x || x >= self.size as i32 || 0 > y || y >= self.size as i32
     }

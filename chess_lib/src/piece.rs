@@ -79,4 +79,19 @@ impl Piece {
             }
         }
     }
+
+    pub fn get_char(&self) -> char {
+        let char = match self.piece_type {
+            PieceType::Pawn => 'p',
+            PieceType::Rook => 'r',
+            PieceType::Knight => 'n',
+            PieceType::Bishop => 'b',
+            PieceType::Queen => 'q',
+            PieceType::King => 'k'
+        };
+        if self.color == Color::White {
+            char.is_ascii_uppercase();
+        }
+        char
+    }
 }
