@@ -99,8 +99,8 @@ impl Game {
         println!("");
     }
 
-    pub fn get_fen(&self) {
-        let mut fen = String::from("");
+    pub fn get_fen(&self) -> String {
+        let mut board_str = String::from("");
         let mut i = 0;
         let mut empty_count = 0;
         for row in &self.board {
@@ -111,22 +111,64 @@ impl Game {
                     },
                     Content::Occupied(this_p) =>  {
                         if empty_count > 0 {
-                            fen = format!("{}{}", fen, empty_count);
+                            board_str = format!("{}{}", board_str, empty_count);
                             empty_count = 0;
                         }
-                        fen.push(this_p.get_char());
+                        board_str.push(this_p.get_char());
                     }
                 }
             }
             if empty_count > 0 {
-                fen = format!("{}{}", fen, empty_count);
+                board_str = format!("{}{}", board_str, empty_count);
                 empty_count = 0;
             }
             if i < 8 {
-                fen.push('/');
+                board_str.push('/');
             }
             i += 1;
         }
+        let turn = match self.turn {
+            Color::White => "w",
+            Color::Black => "b",
+        };
+
+        let mut castle_str = "".to_owned();
+        for col in vec![Color::White, Color::Black] {
+            let mut str = String::from("");
+            let can_castle = self.can_castle(col);
+            if can_castle.right {
+                str.push('k');
+            } else {
+                str.push('-');
+            }
+            if can_castle.right {
+                str.push('q');
+            } else {
+                str.push('-');
+            }
+
+
+            if col == Color::White {
+                str = str.to_uppercase();
+            }
+
+            castle_str.push_str(&str);
+        }
+
+        let en_passant_str = "-";
+        let halfmove_clock = 0;
+        let fullmove_number = 0;
+        
+
+        let fen = format!("{} {} {} {} {} {}",
+            board_str,
+            turn,
+            castle_str,
+            en_passant_str,
+            halfmove_clock,
+            fullmove_number
+        );
+        return fen;
     }
 
     fn destination_outside_board(&self, x: i32, y: i32) -> bool {
@@ -198,7 +240,7 @@ impl Game {
         ];
         return CanCastle {
             left: first_rank[0..=4] == left_side,
-            right: first_rank[0..=7] == right_side
+            right: first_rank[4..=7] == right_side
         };
 
     }

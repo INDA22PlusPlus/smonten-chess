@@ -90,8 +90,9 @@ impl Piece {
             PieceType::King => 'k'
         };
         if self.color == Color::White {
-            char.is_ascii_uppercase();
+            return char.to_ascii_uppercase();
+        } else {
+            return char;
         }
-        char
     }
 }
